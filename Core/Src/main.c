@@ -157,13 +157,13 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	    BMI088_ReadAccel(&imu1, &acc_raw[0], &acc_data[0]);
+	    BMI088_ReadAccel(&imu1, &accel_raw[0], &accel_data[0]);
 	    BMI088_ReadGyro(&imu1, &gyro_raw[0], &gyro_data[0]);
 
-	    BMI088_ReadAccel(&imu2, &acc_raw[1], &acc_data[1]);
+	    BMI088_ReadAccel(&imu2, &accel_raw[1], &accel_data[1]);
 	    BMI088_ReadGyro(&imu2, &gyro_raw[1], &gyro_data[1]);
 
-	    BMI088_ReadAccel(&imu3, &acc_raw[2], &acc_data[2]);
+	    BMI088_ReadAccel(&imu3, &accel_raw[2], &accel_data[2]);
 	    BMI088_ReadGyro(&imu3, &gyro_raw[2], &gyro_data[2]);
     /* USER CODE BEGIN 3 */
   }
