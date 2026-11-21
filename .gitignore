@@ -3,7 +3,8 @@
 # ==========================================
 Debug/
 Release/
-
+FATFS/
+Middlewares/
 # Compiled object and dependency files
 *.o
 *.d
