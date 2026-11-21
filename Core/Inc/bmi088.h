@@ -139,7 +139,7 @@ HAL_StatusTypeDef BMI088_ReadTemperature(
     BMI088_Handle_t *imu,
     float *temperature);
 
-void fusion(const BMI088_Data_t accel[IMU_FUSION_COUNT],const BMI088_Data_t gyro[IMU_FUSION_COUNT],
-	    IMU_FusionData_t *output);
+void fusion(const BMI088_Data_t accel[TOTAL_IMU],const BMI088_Data_t gyro[TOTAL_IMU],
+		BMI088_Data_Fusion_t *output);
 #endif /* INC_BMI088_H_ */
 

@@ -36,6 +36,7 @@ BMI088_RawData_t accel_raw[3];
 BMI088_RawData_t gyro_raw[3];
 BMI088_Data_t accel_data[3];
 BMI088_Data_t gyro_data[3];
+BMI088_Data_Fusion_t fused_data;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -176,14 +177,16 @@ int main(void)
     BMI088_ReadAccel(&imu3, &accel_raw[2], &accel_data[2]);
     BMI088_ReadGyro(&imu3, &gyro_raw[2], &gyro_data[2]);
 
+    fusion(accel_data,gyro_data,&fused_data);
 
-
-    frame_length = csv_log(csv_buffer,sizeof(csv_buffer),accel_data,gyro_data );
+    frame_length = csv_log(csv_buffer,sizeof(csv_buffer),accel_data,gyro_data,&fused_data);
 
     if (frame_length > 0 && frame_length < sizeof(csv_buffer))
     {
         SD_Logger_Write(csv_buffer, (uint16_t)frame_length);
     }
+
+
     HAL_Delay(100);
 
 

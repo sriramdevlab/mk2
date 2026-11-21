@@ -12,11 +12,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define TOTAL_IMU 3
 #define LOG_BUFFER 256
 
 int csv_log(char *buffer, size_t buffer_size,const BMI088_Data_t accel[TOTAL_IMU],
-		const BMI088_Data_t gyro[TOTAL_IMU]);
+		const BMI088_Data_t gyro[TOTAL_IMU],const BMI088_Data_Fusion_t *fused);
 
 int csv_log_Header(char *buffer, size_t buffer_size);
 
