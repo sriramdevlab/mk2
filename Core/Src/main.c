@@ -58,6 +58,10 @@ SPI_HandleTypeDef hspi1;
 DMA_HandleTypeDef hdma_spi1_rx;
 DMA_HandleTypeDef hdma_spi1_tx;
 
+TIM_HandleTypeDef htim6;
+
+volatile uint32_t sample_ticks = 0;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -69,19 +73,26 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_SDMMC1_SD_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim->Instance == TIM6)
+    {
+        sample_ticks++;
+    }
+}
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
 
@@ -114,6 +125,7 @@ int main(void)
   MX_SDMMC1_SD_Init();
   MX_SPI1_Init();
   MX_FATFS_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
   imu1.spi = &hspi1;
   imu1.acc_cs_port = IMU1_ACC_CS_GPIO_Port;
@@ -158,7 +170,6 @@ int main(void)
 
   SD_Logger_Init();
 
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -195,29 +206,27 @@ int main(void)
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Supply configuration update enable
-   */
+  */
   HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
 
   /** Configure the main internal regulator output voltage
-   */
+  */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-  while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
-  {
-  }
+  while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
+  * in the RCC_OscInitTypeDef structure.
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -236,8 +245,10 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2
+                              |RCC_CLOCKTYPE_D3PCLK1|RCC_CLOCKTYPE_D1PCLK1;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
@@ -253,10 +264,10 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief SDMMC1 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief SDMMC1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_SDMMC1_SD_Init(void)
 {
 
@@ -280,13 +291,14 @@ static void MX_SDMMC1_SD_Init(void)
   /* USER CODE BEGIN SDMMC1_Init 2 */
 
   /* USER CODE END SDMMC1_Init 2 */
+
 }
 
 /**
- * @brief SPI1 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief SPI1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_SPI1_Init(void)
 {
 
@@ -327,11 +339,50 @@ static void MX_SPI1_Init(void)
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
+
 }
 
 /**
- * Enable DMA controller clock
- */
+  * @brief TIM6 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 19999;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 99;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+
+  /* USER CODE END TIM6_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
 static void MX_DMA_Init(void)
 {
 
@@ -345,13 +396,14 @@ static void MX_DMA_Init(void)
   /* DMA1_Stream1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+
 }
 
 /**
- * @brief GPIO Initialization Function
- * @param None
- * @retval None
- */
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -368,20 +420,20 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, IMU3_GYRO_CS_Pin | IMU2_GYRO_CS_Pin | IMU3_ACC_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOE, IMU3_GYRO_CS_Pin|IMU2_GYRO_CS_Pin|IMU3_ACC_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, IMU1_ACC_CS_Pin | IMU1_GYRO_CS_Pin | IMU2_ACC_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, IMU1_ACC_CS_Pin|IMU1_GYRO_CS_Pin|IMU2_ACC_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : IMU3_GYRO_CS_Pin IMU2_GYRO_CS_Pin IMU3_ACC_CS_Pin */
-  GPIO_InitStruct.Pin = IMU3_GYRO_CS_Pin | IMU2_GYRO_CS_Pin | IMU3_ACC_CS_Pin;
+  GPIO_InitStruct.Pin = IMU3_GYRO_CS_Pin|IMU2_GYRO_CS_Pin|IMU3_ACC_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pins : IMU1_ACC_CS_Pin IMU1_GYRO_CS_Pin IMU2_ACC_CS_Pin */
-  GPIO_InitStruct.Pin = IMU1_ACC_CS_Pin | IMU1_GYRO_CS_Pin | IMU2_ACC_CS_Pin;
+  GPIO_InitStruct.Pin = IMU1_ACC_CS_Pin|IMU1_GYRO_CS_Pin|IMU2_ACC_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -389,7 +441,8 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : IMU1_ACC_INT_Pin IMU1_GYRO_INT_Pin IMU2_ACC_INT_Pin IMU2_GYRO_INT_Pin
                            IMU3_ACC_INT_Pin IMU3_GYRO_INT_Pin */
-  GPIO_InitStruct.Pin = IMU1_ACC_INT_Pin | IMU1_GYRO_INT_Pin | IMU2_ACC_INT_Pin | IMU2_GYRO_INT_Pin | IMU3_ACC_INT_Pin | IMU3_GYRO_INT_Pin;
+  GPIO_InitStruct.Pin = IMU1_ACC_INT_Pin|IMU1_GYRO_INT_Pin|IMU2_ACC_INT_Pin|IMU2_GYRO_INT_Pin
+                          |IMU3_ACC_INT_Pin|IMU3_GYRO_INT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
@@ -422,7 +475,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* MPU Configuration */
+ /* MPU Configuration */
 
 void MPU_Config(void)
 {
@@ -432,7 +485,7 @@ void MPU_Config(void)
   HAL_MPU_Disable();
 
   /** Initializes and configures the Region and the memory to be protected
-   */
+  */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER0;
   MPU_InitStruct.BaseAddress = 0x0;
@@ -448,12 +501,13 @@ void MPU_Config(void)
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
   /* Enables the MPU */
   HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
+
 }
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -466,12 +520,12 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
