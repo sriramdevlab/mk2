@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2026 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -75,9 +75,9 @@ static void MX_SPI1_Init(void);
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
@@ -113,7 +113,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   imu1.spi = &hspi1;
   imu1.acc_cs_port = IMU1_ACC_CS_GPIO_Port;
-  imu1.acc_cs_pin =  IMU1_ACC_CS_Pin;
+  imu1.acc_cs_pin = IMU1_ACC_CS_Pin;
   imu1.gyro_cs_port = IMU1_GYRO_CS_GPIO_Port;
   imu1.gyro_cs_pin = IMU1_GYRO_CS_Pin;
   imu1.accel_range = BMI088_ACC_RANGE_6G;
@@ -121,7 +121,7 @@ int main(void)
 
   imu2.spi = &hspi1;
   imu2.acc_cs_port = IMU2_ACC_CS_GPIO_Port;
-  imu2.acc_cs_pin =  IMU2_ACC_CS_Pin;
+  imu2.acc_cs_pin = IMU2_ACC_CS_Pin;
   imu2.gyro_cs_port = IMU2_GYRO_CS_GPIO_Port;
   imu2.gyro_cs_pin = IMU2_GYRO_CS_Pin;
   imu2.accel_range = BMI088_ACC_RANGE_6G;
@@ -129,7 +129,7 @@ int main(void)
 
   imu3.spi = &hspi1;
   imu3.acc_cs_port = IMU3_ACC_CS_GPIO_Port;
-  imu3.acc_cs_pin =  IMU3_ACC_CS_Pin;
+  imu3.acc_cs_pin = IMU3_ACC_CS_Pin;
   imu3.gyro_cs_port = IMU3_GYRO_CS_GPIO_Port;
   imu3.gyro_cs_pin = IMU3_GYRO_CS_Pin;
   imu3.accel_range = BMI088_ACC_RANGE_6G;
@@ -137,17 +137,17 @@ int main(void)
 
   if (BMI088_Init(&imu1) != HAL_OK)
   {
-      return HAL_ERROR;
+    return HAL_ERROR;
   }
 
   if (BMI088_Init(&imu2) != HAL_OK)
   {
-      return HAL_ERROR;
+    return HAL_ERROR;
   }
 
   if (BMI088_Init(&imu3) != HAL_OK)
   {
-      return HAL_ERROR;
+    return HAL_ERROR;
   }
 
   return HAL_OK;
@@ -161,32 +161,42 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    BMI088_ReadAccel(&imu1, &accel_raw[0], &accel_data[0]);
+    BMI088_ReadGyro(&imu1, &gyro_raw[0], &gyro_data[0]);
+
+    BMI088_ReadAccel(&imu2, &accel_raw[1], &accel_data[1]);
+    BMI088_ReadGyro(&imu2, &gyro_raw[1], &gyro_data[1]);
+
+    BMI088_ReadAccel(&imu3, &accel_raw[2], &accel_data[2]);
+    BMI088_ReadGyro(&imu3, &gyro_raw[2], &gyro_data[2]);
   }
   /* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Supply configuration update enable
-  */
+   */
   HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-  while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
+  while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
+  {
+  }
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -205,10 +215,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2
-                              |RCC_CLOCKTYPE_D3PCLK1|RCC_CLOCKTYPE_D1PCLK1;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
@@ -224,10 +232,10 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief SDMMC1 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief SDMMC1 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_SDMMC1_SD_Init(void)
 {
 
@@ -251,14 +259,13 @@ static void MX_SDMMC1_SD_Init(void)
   /* USER CODE BEGIN SDMMC1_Init 2 */
 
   /* USER CODE END SDMMC1_Init 2 */
-
 }
 
 /**
-  * @brief SPI1 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief SPI1 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_SPI1_Init(void)
 {
 
@@ -299,12 +306,11 @@ static void MX_SPI1_Init(void)
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
-
 }
 
 /**
-  * Enable DMA controller clock
-  */
+ * Enable DMA controller clock
+ */
 static void MX_DMA_Init(void)
 {
 
@@ -318,14 +324,13 @@ static void MX_DMA_Init(void)
   /* DMA1_Stream1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
-
 }
 
 /**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief GPIO Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -342,20 +347,20 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, IMU3_GYRO_CS_Pin|IMU2_GYRO_CS_Pin|IMU3_ACC_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOE, IMU3_GYRO_CS_Pin | IMU2_GYRO_CS_Pin | IMU3_ACC_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, IMU1_ACC_CS_Pin|IMU1_GYRO_CS_Pin|IMU2_ACC_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, IMU1_ACC_CS_Pin | IMU1_GYRO_CS_Pin | IMU2_ACC_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : IMU3_GYRO_CS_Pin IMU2_GYRO_CS_Pin IMU3_ACC_CS_Pin */
-  GPIO_InitStruct.Pin = IMU3_GYRO_CS_Pin|IMU2_GYRO_CS_Pin|IMU3_ACC_CS_Pin;
+  GPIO_InitStruct.Pin = IMU3_GYRO_CS_Pin | IMU2_GYRO_CS_Pin | IMU3_ACC_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pins : IMU1_ACC_CS_Pin IMU1_GYRO_CS_Pin IMU2_ACC_CS_Pin */
-  GPIO_InitStruct.Pin = IMU1_ACC_CS_Pin|IMU1_GYRO_CS_Pin|IMU2_ACC_CS_Pin;
+  GPIO_InitStruct.Pin = IMU1_ACC_CS_Pin | IMU1_GYRO_CS_Pin | IMU2_ACC_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -363,8 +368,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : IMU1_ACC_INT_Pin IMU1_GYRO_INT_Pin IMU2_ACC_INT_Pin IMU2_GYRO_INT_Pin
                            IMU3_ACC_INT_Pin IMU3_GYRO_INT_Pin */
-  GPIO_InitStruct.Pin = IMU1_ACC_INT_Pin|IMU1_GYRO_INT_Pin|IMU2_ACC_INT_Pin|IMU2_GYRO_INT_Pin
-                          |IMU3_ACC_INT_Pin|IMU3_GYRO_INT_Pin;
+  GPIO_InitStruct.Pin = IMU1_ACC_INT_Pin | IMU1_GYRO_INT_Pin | IMU2_ACC_INT_Pin | IMU2_GYRO_INT_Pin | IMU3_ACC_INT_Pin | IMU3_GYRO_INT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
@@ -397,7 +401,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
- /* MPU Configuration */
+/* MPU Configuration */
 
 void MPU_Config(void)
 {
@@ -407,7 +411,7 @@ void MPU_Config(void)
   HAL_MPU_Disable();
 
   /** Initializes and configures the Region and the memory to be protected
-  */
+   */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER0;
   MPU_InitStruct.BaseAddress = 0x0;
@@ -423,13 +427,12 @@ void MPU_Config(void)
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
   /* Enables the MPU */
   HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
-
 }
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -442,12 +445,12 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
