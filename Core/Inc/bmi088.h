@@ -25,6 +25,11 @@
 #define ACC_PWR_CTRL             0x7D
 #define ACC_SOFTRESET            0x7E
 
+#define ACC_PWR_CONF_ACTIVE      0x00
+#define ACC_PWR_CTRL_NORMAL      0x04
+
+#define ACC_NORMAL_100HZ         0XA8
+
 #define GYRO_CHIP_ID             0x00
 #define GYRO_DATA_X_LSB          0x02
 #define GYRO_DATA_Y_LSB          0x04
@@ -33,6 +38,9 @@
 #define GYRO_BANDWIDTH           0x10
 #define GYRO_LPM1                0x11
 #define GYRO_SOFTRESET           0x14
+
+#define GYRO_BANDWIDTH_116HZ     0x02
+#define GYRO_LPM1_NORMAL		 0X00
 
 #define TEMP_LSB                 0x22
 #define TEMP_MSB                 0x23

@@ -201,12 +201,12 @@ HAL_StatusTypeDef BMI088_Init(BMI088_Handle_t *imu)
 
     HAL_Delay(30);
 
-    if (BMI088_AccWrite(imu, ACC_PWR_CONF, 0x00) != HAL_OK)
+    if (BMI088_AccWrite(imu, ACC_PWR_CONF, ACC_PWR_CONF_ACTIVE) != HAL_OK)
         return HAL_ERROR;
 
     HAL_Delay(5);
 
-    if (BMI088_AccWrite(imu, ACC_PWR_CTRL, 0x04) != HAL_OK)
+    if (BMI088_AccWrite(imu, ACC_PWR_CTRL, ACC_PWR_CTRL_NORMAL) != HAL_OK)
         return HAL_ERROR;
 
     HAL_Delay(50);
@@ -215,7 +215,7 @@ HAL_StatusTypeDef BMI088_Init(BMI088_Handle_t *imu)
         imu, ACC_RANGE, imu->accel_range) != HAL_OK)
         return HAL_ERROR;
 
-    if (BMI088_AccWrite(imu, ACC_CONF, 0xA8) != HAL_OK)
+    if (BMI088_AccWrite(imu, ACC_CONF, ACC_NORMAL_100HZ) != HAL_OK)
         return HAL_ERROR;
 
     if (BMI088_GyroWrite(
@@ -223,11 +223,11 @@ HAL_StatusTypeDef BMI088_Init(BMI088_Handle_t *imu)
         return HAL_ERROR;
 
     if (BMI088_GyroWrite(
-        imu, GYRO_BANDWIDTH, 0x02) != HAL_OK)
+        imu, GYRO_BANDWIDTH, GYRO_BANDWIDTH_116HZ) != HAL_OK)
         return HAL_ERROR;
 
     if (BMI088_GyroWrite(
-        imu, GYRO_LPM1, 0x00) != HAL_OK)
+        imu, GYRO_LPM1, GYRO_LPM1_NORMAL) != HAL_OK)
         return HAL_ERROR;
 
     HAL_Delay(10);
