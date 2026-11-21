@@ -17,8 +17,11 @@
 
 #define ACC_CHIP_ID              0x00
 #define ACC_DATA_X_LSB           0x12
+#define ACC_DATA_X_MSB           0x13
 #define ACC_DATA_Y_LSB           0x14
+#define ACC_DATA_Y_MSB           0x15
 #define ACC_DATA_Z_LSB           0x16
+#define ACC_DATA_Z_MSB           0x17
 #define ACC_CONF                 0x40
 #define ACC_RANGE                0x41
 #define ACC_PWR_CONF             0x7C
@@ -32,8 +35,11 @@
 
 #define GYRO_CHIP_ID             0x00
 #define GYRO_DATA_X_LSB          0x02
+#define GYRO_DATA_X_MSB          0x03
 #define GYRO_DATA_Y_LSB          0x04
+#define GYRO_DATA_Y_MSB          0x05
 #define GYRO_DATA_Z_LSB          0x06
+#define GYRO_DATA_Z_MSB          0x07
 #define GYRO_RANGE               0x0F
 #define GYRO_BANDWIDTH           0x10
 #define GYRO_LPM1                0x11

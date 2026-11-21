@@ -23,6 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bmi088.h"
+#include "csv_log.h"
+#include "sd_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,7 +40,8 @@ BMI088_Data_t gyro_data[3];
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+char csv_buffer[LOG_BUFFER];
+int frame_length;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -152,6 +155,9 @@ int main(void)
 
   return HAL_OK;
 
+  SD_Logger_Init();
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -169,6 +175,18 @@ int main(void)
 
     BMI088_ReadAccel(&imu3, &accel_raw[2], &accel_data[2]);
     BMI088_ReadGyro(&imu3, &gyro_raw[2], &gyro_data[2]);
+
+
+
+    frame_length = csv_log(csv_buffer,sizeof(csv_buffer),accel_data,gyro_data );
+
+    if (frame_length > 0 && frame_length < sizeof(csv_buffer))
+    {
+        SD_Logger_Write(csv_buffer, (uint16_t)frame_length);
+    }
+    HAL_Delay(100);
+
+
   }
   /* USER CODE END 3 */
 }
