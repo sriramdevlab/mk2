@@ -15,9 +15,9 @@
 #define TOTAL_IMU 3
 #define LOG_BUFFER 256
 
-void csv_log(char *buffer, size_t buffer_size,const BMI088_Data_t accel[TOTAL_IMU],
+int csv_log(char *buffer, size_t buffer_size,const BMI088_Data_t accel[TOTAL_IMU],
 		const BMI088_Data_t gyro[TOTAL_IMU]);
 
-void csv_log_Header(char *buffer, size_t buffer_size);
+int csv_log_Header(char *buffer, size_t buffer_size);
 
 #endif /* INC_CSV_LOG_H_ */

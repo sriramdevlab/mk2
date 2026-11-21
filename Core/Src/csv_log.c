@@ -8,10 +8,10 @@
 #include "csv_log.h"
 #include <stdio.h>
 
-void csv_log(char *buffer, size_t buffer_size,const BMI088_Data_t accel[TOTAL_IMU],
+int csv_log(char *buffer, size_t buffer_size,const BMI088_Data_t accel[TOTAL_IMU],
 		const BMI088_Data_t gyro[TOTAL_IMU])
 {
-	 snprintf(buffer, buffer_size,
+	int length = snprintf(buffer, buffer_size,
     		        "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,"
     		        "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,"
     		        "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\r\n",
@@ -25,18 +25,21 @@ void csv_log(char *buffer, size_t buffer_size,const BMI088_Data_t accel[TOTAL_IM
     		        accel[2].x, accel[2].y, accel[2].z,
     		        gyro[2].x, gyro[2].y, gyro[2].z
     		    );
+    return length;
+
 }
 
-void CSV_Logger_FormatHeader(char *buffer, size_t buffer_size)
+int csv_log_Header(char *buffer, size_t buffer_size)
 {
 
- snprintf(buffer, buffer_size,
+	int length = snprintf(buffer, buffer_size,
         "imu1_ax,imu1_ay,imu1_az,"
         "imu1_gx,imu1_gy,imu1_gz,"
         "imu2_ax,imu2_ay,imu2_az,"
         "imu2_gx,imu2_gy,imu2_gz,"
         "imu3_ax,imu3_ay,imu3_az,"
         "imu3_gx,imu3_gy,imu3_gz\r\n");
+    return length;
 
 
 }
