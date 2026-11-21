@@ -21,12 +21,16 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "bmi088.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+BMI088_Handle_t imu;
+BMI088_RawData_t accel_raw;
+BMI088_RawData_t gyro_raw;
+BMI088_Data_t accel_data;
+BMI088_Data_t gyro_data;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -103,6 +107,22 @@ int main(void)
   MX_SDMMC1_SD_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
+  imu.spi = &hspi1;
+  imu.acc_cs_port = IMU1_ACC_CS_GPIO_Port;
+  imu.acc_cs_pin =  IMU1_ACC_CS_Pin;
+  imu.gyro_cs_port = IMU1_GYRO_CS_GPIO_Port;
+  imu.gyro_cs_pin = IMU1_GYRO_CS_Pin;
+  imu.accel_range = BMI088_ACC_RANGE_6G;
+  imu.gyro_range = BMI088_GYRO_RANGE_2000DPS;
+
+  if(BMI088_Init(&imu) == HAL_OK)
+  {
+      return HAL_OK;
+  }
+  else{
+      return HAL_ERROR;
+
+  }
 
   /* USER CODE END 2 */
 
@@ -111,7 +131,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  BMI088_ReadAccel(&imu, &accel_raw, &accel_data);
+	  BMI088_ReadGyro(&imu, &gyro_raw, &gyro_data);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
