@@ -44,8 +44,8 @@ static HAL_StatusTypeDef BMI088_AccRead(
     uint8_t *data,
     uint16_t len)
 {
-    uint8_t tx[32] = {0};
-    uint8_t rx[32] = {0};
+    uint8_t tx[8] = {0};
+    uint8_t rx[8] = {0};
 
     if (imu == NULL || data == NULL || len == 0 || len > 30)
         return HAL_ERROR;
@@ -75,8 +75,8 @@ static HAL_StatusTypeDef BMI088_GyroRead(
     uint8_t *data,
     uint16_t len)
 {
-    uint8_t tx[32] = {0};
-    uint8_t rx[32] = {0};
+    uint8_t tx[8] = {0};
+    uint8_t rx[8] = {0};
 
     if (imu == NULL || data == NULL || len == 0 || len > 31)
         return HAL_ERROR;
