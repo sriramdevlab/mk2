@@ -26,11 +26,13 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-BMI088_Handle_t imu;
-BMI088_RawData_t accel_raw;
-BMI088_RawData_t gyro_raw;
-BMI088_Data_t accel_data;
-BMI088_Data_t gyro_data;
+BMI088_Handle_t imu1;
+BMI088_Handle_t imu2;
+BMI088_Handle_t imu3;
+BMI088_RawData_t accel_raw[3];
+BMI088_RawData_t gyro_raw[3];
+BMI088_Data_t accel_data[3];
+BMI088_Data_t gyro_data[3];
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -107,22 +109,46 @@ int main(void)
   MX_SDMMC1_SD_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-  imu.spi = &hspi1;
-  imu.acc_cs_port = IMU1_ACC_CS_GPIO_Port;
-  imu.acc_cs_pin =  IMU1_ACC_CS_Pin;
-  imu.gyro_cs_port = IMU1_GYRO_CS_GPIO_Port;
-  imu.gyro_cs_pin = IMU1_GYRO_CS_Pin;
-  imu.accel_range = BMI088_ACC_RANGE_6G;
-  imu.gyro_range = BMI088_GYRO_RANGE_2000DPS;
+  imu1.spi = &hspi1;
+  imu1.acc_cs_port = IMU1_ACC_CS_GPIO_Port;
+  imu1.acc_cs_pin =  IMU1_ACC_CS_Pin;
+  imu1.gyro_cs_port = IMU1_GYRO_CS_GPIO_Port;
+  imu1.gyro_cs_pin = IMU1_GYRO_CS_Pin;
+  imu1.accel_range = BMI088_ACC_RANGE_6G;
+  imu1.gyro_range = BMI088_GYRO_RANGE_2000DPS;
 
-  if(BMI088_Init(&imu) == HAL_OK)
+  imu2.spi = &hspi1;
+  imu2.acc_cs_port = IMU2_ACC_CS_GPIO_Port;
+  imu2.acc_cs_pin =  IMU2_ACC_CS_Pin;
+  imu2.gyro_cs_port = IMU2_GYRO_CS_GPIO_Port;
+  imu2.gyro_cs_pin = IMU2_GYRO_CS_Pin;
+  imu2.accel_range = BMI088_ACC_RANGE_6G;
+  imu2.gyro_range = BMI088_GYRO_RANGE_2000DPS;
+
+  imu3.spi = &hspi1;
+  imu3.acc_cs_port = IMU3_ACC_CS_GPIO_Port;
+  imu3.acc_cs_pin =  IMU3_ACC_CS_Pin;
+  imu3.gyro_cs_port = IMU3_GYRO_CS_GPIO_Port;
+  imu3.gyro_cs_pin = IMU3_GYRO_CS_Pin;
+  imu3.accel_range = BMI088_ACC_RANGE_6G;
+  imu3.gyro_range = BMI088_GYRO_RANGE_2000DPS;
+
+  if (BMI088_Init(&imu1) != HAL_OK)
   {
-      return HAL_OK;
-  }
-  else{
       return HAL_ERROR;
-
   }
+
+  if (BMI088_Init(&imu2) != HAL_OK)
+  {
+      return HAL_ERROR;
+  }
+
+  if (BMI088_Init(&imu3) != HAL_OK)
+  {
+      return HAL_ERROR;
+  }
+
+  return HAL_OK;
 
   /* USER CODE END 2 */
 
@@ -131,8 +157,14 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  BMI088_ReadAccel(&imu, &accel_raw, &accel_data);
-	  BMI088_ReadGyro(&imu, &gyro_raw, &gyro_data);
+	    BMI088_ReadAccel(&imu1, &acc_raw[0], &acc_data[0]);
+	    BMI088_ReadGyro(&imu1, &gyro_raw[0], &gyro_data[0]);
+
+	    BMI088_ReadAccel(&imu2, &acc_raw[1], &acc_data[1]);
+	    BMI088_ReadGyro(&imu2, &gyro_raw[1], &gyro_data[1]);
+
+	    BMI088_ReadAccel(&imu3, &acc_raw[2], &acc_data[2]);
+	    BMI088_ReadGyro(&imu3, &gyro_raw[2], &gyro_data[2]);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
