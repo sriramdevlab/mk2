@@ -12,6 +12,8 @@
 #include "stm32h7xx_hal.h"
 #include <stdint.h>
 
+#define TOTAL_IMU 3
+
 #define ACC_ID_VALUE             0x1E
 #define GYRO_ID_VALUE            0x0F
 
@@ -92,6 +94,12 @@ typedef struct
 
 } BMI088_Data_t;
 
+typedef struct
+{
+	BMI088_Data_t accel;
+	BMI088_Data_t gyro;
+
+}BMI088_Data_Fusion_t;
 
 typedef struct
 {
@@ -131,5 +139,7 @@ HAL_StatusTypeDef BMI088_ReadTemperature(
     BMI088_Handle_t *imu,
     float *temperature);
 
+void fusion(const BMI088_Data_t accel[IMU_FUSION_COUNT],const BMI088_Data_t gyro[IMU_FUSION_COUNT],
+	    IMU_FusionData_t *output);
 #endif /* INC_BMI088_H_ */
 

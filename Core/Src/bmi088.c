@@ -352,3 +352,43 @@ HAL_StatusTypeDef BMI088_ReadTemperature(
 
     return HAL_OK;
 }
+
+void fusion(const BMI088_Data_t accel[TOTAL_IMU],const BMI088_Data_t gyro[TOTAL_IMU],
+		BMI088_Data_Fusion_t *output){
+
+	 BMI088_Data_t accel_f[3];
+	 BMI088_Data_t gyro_f[3];
+
+	 accel_f[0].x = accel[0].x;
+	 accel_f[0].y = accel[0].y;
+	 accel_f[0].z = accel[0].z;
+
+	 gyro_f[0].x = gyro[0].x;
+	 gyro_f[0].y = gyro[0].y;
+	 gyro_f[0].z = gyro[0].z;
+
+	 accel_f[1].x = -accel[1].y;
+	 accel_f[1].y = accel[1].x;
+	 accel_f[1].z = accel[1].z;
+
+	 gyro_f[1].x = -gyro[1].y;
+	 gyro_f[1].y = gyro[1].x;
+	 gyro_f[1].z = gyro[1].z;
+
+	 accel_f[2].x = -accel[2].x;
+	 accel_f[2].y = -accel[2].y;
+	 accel_f[2].z = accel[2].z;
+
+	 gyro_f[2].x = -gyro[2].x;
+	 gyro_f[2].y = -gyro[2].y;
+	 gyro_f[2].z = gyro[2].z;
+
+	 output->accel.x = ( accel_f[0].x + accel_f[1].x + accel_f[2].x ) / 3.0f;
+	 output->accel.y = ( accel_f[0].y + accel_f[1].y + accel_f[2].y ) / 3.0f;
+	 output->accel.z = ( accel_f[0].z + accel_f[1].z + accel_f[2].z ) / 3.0f;
+
+	 output->gyro.x = ( gyro_f[0].x + gyro_f[1].x + gyro_f[2].x) / 3.0f;
+	 output->gyro.y = ( gyro_f[0].y + gyro_f[1].y + gyro_f[2].y) / 3.0f;
+	 output->gyro.z = ( gyro_f[0].z + gyro_f[1].z + gyro_f[2].z) / 3.0f;
+
+}
