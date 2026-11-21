@@ -27,3 +27,16 @@ void csv_log(char *buffer, size_t buffer_size,const BMI088_Data_t accel[TOTAL_IM
     		    );
 }
 
+void CSV_Logger_FormatHeader(char *buffer, size_t buffer_size)
+{
+
+ snprintf(buffer, buffer_size,
+        "imu1_ax,imu1_ay,imu1_az,"
+        "imu1_gx,imu1_gy,imu1_gz,"
+        "imu2_ax,imu2_ay,imu2_az,"
+        "imu2_gx,imu2_gy,imu2_gz,"
+        "imu3_ax,imu3_ay,imu3_az,"
+        "imu3_gx,imu3_gy,imu3_gz\r\n");
+
+
+}
