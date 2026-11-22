@@ -10,6 +10,7 @@
 
 #include "ff.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 #define RAM_LOG_BUFFER_SIZE    4096U
 

@@ -802,7 +802,7 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
             if (frame_length > 0 &&
                 frame_length < sizeof(csv_buffer))
             {
-                SD_Logger_Write(csv_buffer, (uint16_t)frame_length);
+            	RAM_Log_Append(csv_buffer, (uint16_t)frame_length);
             }
 
             imu_dma_state = IMU_DMA_IDLE;

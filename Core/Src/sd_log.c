@@ -8,7 +8,7 @@
 #include "fatfs.h"
 #include "csv_log.h"
 #include <stdio.h>
-
+#include "string.h"
 __attribute__((section(".RAM_D2"), aligned(32)))
 static RAM_LogBuffer_t log_buffers[2];
 
