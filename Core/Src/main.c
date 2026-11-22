@@ -29,6 +29,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+
+
 BMI088_Handle_t imu1;
 BMI088_Handle_t imu2;
 BMI088_Handle_t imu3;
@@ -41,8 +43,7 @@ BMI088_Data_Fusion_t fused_data;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-char csv_buffer[LOG_BUFFER];
-int frame_length;
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -63,7 +64,11 @@ TIM_HandleTypeDef htim6;
 volatile uint32_t sample_ticks = 0;
 
 /* USER CODE BEGIN PV */
+__attribute__((section(".RAM_D2"), aligned(32)))
 
+volatile IMU_DMA_State_t imu_dma_state = IMU_DMA_IDLE;
+
+volatile uint8_t sample_ready = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -87,6 +92,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         sample_ticks++;
     }
 }
+
+
 /* USER CODE END 0 */
 
 /**
@@ -166,9 +173,12 @@ int main(void)
     return HAL_ERROR;
   }
 
-  return HAL_OK;
-
   SD_Logger_Init();
+
+  if (HAL_TIM_Base_Start_IT(&htim6) != HAL_OK)
+  {
+      Error_Handler();
+  }
 
   /* USER CODE END 2 */
 
@@ -179,26 +189,45 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    BMI088_ReadAccel(&imu1, &accel_raw[0], &accel_data[0]);
-    BMI088_ReadGyro(&imu1, &gyro_raw[0], &gyro_data[0]);
+//    BMI088_ReadAccel(&imu1, &accel_raw[0], &accel_data[0]);
+//    BMI088_ReadGyro(&imu1, &gyro_raw[0], &gyro_data[0]);
+//
+//    BMI088_ReadAccel(&imu2, &accel_raw[1], &accel_data[1]);
+//    BMI088_ReadGyro(&imu2, &gyro_raw[1], &gyro_data[1]);
+//
+//    BMI088_ReadAccel(&imu3, &accel_raw[2], &accel_data[2]);
+//    BMI088_ReadGyro(&imu3, &gyro_raw[2], &gyro_data[2]);
+//
+//    fusion(accel_data,gyro_data,&fused_data);
+//
+//    frame_length = csv_log(csv_buffer,sizeof(csv_buffer),accel_data,gyro_data,&fused_data);
+//
+//    if (frame_length > 0 && frame_length < sizeof(csv_buffer))
+//    {
+//        SD_Logger_Write(csv_buffer, (uint16_t)frame_length);
+//    }
+//
+//
+//    HAL_Delay(100);
+	    if (imu_dma_state == IMU_DMA_IDLE)
+	    {
+	        if (sample_ticks > 0U)
+	        {
+	            /* Safely consume one timer event */
+	            __disable_irq();
 
-    BMI088_ReadAccel(&imu2, &accel_raw[1], &accel_data[1]);
-    BMI088_ReadGyro(&imu2, &gyro_raw[1], &gyro_data[1]);
+	            if (sample_ticks > 0U)
+	            {
+	                sample_ticks--;
+	                imu_dma_state = IMU1_ACC_START;
+	            }
 
-    BMI088_ReadAccel(&imu3, &accel_raw[2], &accel_data[2]);
-    BMI088_ReadGyro(&imu3, &gyro_raw[2], &gyro_data[2]);
+	            __enable_irq();
+	        }
+	    }
 
-    fusion(accel_data,gyro_data,&fused_data);
+	    IMU_DMA_Task();
 
-    frame_length = csv_log(csv_buffer,sizeof(csv_buffer),accel_data,gyro_data,&fused_data);
-
-    if (frame_length > 0 && frame_length < sizeof(csv_buffer))
-    {
-        SD_Logger_Write(csv_buffer, (uint16_t)frame_length);
-    }
-
-
-    HAL_Delay(100);
 
 
   }

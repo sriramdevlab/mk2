@@ -56,6 +56,10 @@
 #define SOFT_RESET_CMD           0xB6
 #define BMI088_SPI_TIMEOUT       100
 
+
+
+
+
 typedef enum
 {
     BMI088_ACC_RANGE_3G  = 0x00,
@@ -119,7 +123,78 @@ typedef struct
 
 } BMI088_Handle_t;
 
+extern BMI088_Handle_t imu1;
+extern BMI088_Handle_t imu2;
+extern BMI088_Handle_t imu3;
+extern BMI088_RawData_t accel_raw[3];
+extern BMI088_RawData_t gyro_raw[3];
+extern BMI088_Data_t accel_data[3];
+extern BMI088_Data_t gyro_data[3];
+extern BMI088_Data_Fusion_t fused_data;
 
+typedef enum
+{
+    IMU_DMA_IDLE = 0,
+
+    IMU1_ACC_START,
+    IMU1_ACC_WAIT,
+
+    IMU1_GYRO_START,
+    IMU1_GYRO_WAIT,
+
+    IMU2_ACC_START,
+    IMU2_ACC_WAIT,
+
+    IMU2_GYRO_START,
+    IMU2_GYRO_WAIT,
+
+    IMU3_ACC_START,
+    IMU3_ACC_WAIT,
+
+    IMU3_GYRO_START,
+    IMU3_GYRO_WAIT,
+
+    IMU_DMA_FUSION,
+    IMU_DMA_LOG
+
+} IMU_DMA_State_t;
+
+typedef enum
+{
+    BMI088_DMA_IDLE = 0,
+    BMI088_DMA_BUSY,
+    BMI088_DMA_COMPLETE,
+    BMI088_DMA_ERROR
+
+} BMI088_DMA_State_t;
+
+typedef enum
+{
+    BMI088_DMA_ACCEL = 0,
+    BMI088_DMA_GYRO
+
+} BMI088_DMA_Sensor_t;
+
+typedef struct
+{
+    uint8_t tx_buffer[32] __attribute__((aligned(32)));
+    uint8_t rx_buffer[32] __attribute__((aligned(32)));
+
+    BMI088_Handle_t *imu;
+
+    volatile BMI088_DMA_State_t state;
+
+    BMI088_DMA_Sensor_t sensor;
+
+    uint16_t transfer_length;
+    uint8_t data_offset;
+
+    BMI088_RawData_t raw;
+    BMI088_Data_t converted;
+
+} BMI088_DMA_Context_t;
+
+extern volatile IMU_DMA_State_t imu_dma_state;
 
 HAL_StatusTypeDef BMI088_Init(BMI088_Handle_t *imu);
 
@@ -141,5 +216,26 @@ HAL_StatusTypeDef BMI088_ReadTemperature(
 
 void fusion(const BMI088_Data_t accel[TOTAL_IMU],const BMI088_Data_t gyro[TOTAL_IMU],
 		BMI088_Data_Fusion_t *output);
+
+HAL_StatusTypeDef BMI088_ReadAccel_DMA(
+    BMI088_DMA_Context_t *context,
+    BMI088_Handle_t *imu
+);
+
+HAL_StatusTypeDef BMI088_ReadGyro_DMA(
+    BMI088_DMA_Context_t *context,
+    BMI088_Handle_t *imu
+);
+
+HAL_StatusTypeDef BMI088_ProcessDMA(
+    BMI088_DMA_Context_t *context
+);
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi);
+ HAL_StatusTypeDef IMU_DMA_StartAccel(uint8_t index);
+ HAL_StatusTypeDef IMU_DMA_StartGyro(uint8_t index);
+ HAL_StatusTypeDef IMU_DMA_StoreResult(uint8_t index);
+ void IMU_DMA_Task(void);
+
+
 #endif /* INC_BMI088_H_ */
 

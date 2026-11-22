@@ -154,6 +154,15 @@ SECTIONS
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
   } >RAM_D1
+  
+    /* DMA buffers in RAM_D2 */
+  .RAM_D2 (NOLOAD) :
+  {
+    . = ALIGN(32);
+    *(.RAM_D2)
+    *(.RAM_D2*)
+    . = ALIGN(32);
+  } >RAM_D2
 
   /* User_heap_stack section, used to check that there is enough RAM left */
   ._user_heap_stack :
