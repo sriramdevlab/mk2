@@ -174,6 +174,7 @@ int main(void)
   }
 
   SD_Logger_Init();
+  RAM_Log_Init();
 
   if (HAL_TIM_Base_Start_IT(&htim6) != HAL_OK)
   {
@@ -213,7 +214,6 @@ int main(void)
 	    {
 	        if (sample_ticks > 0U)
 	        {
-	            /* Safely consume one timer event */
 	            __disable_irq();
 
 	            if (sample_ticks > 0U)

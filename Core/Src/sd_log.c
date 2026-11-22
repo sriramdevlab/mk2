@@ -9,6 +9,11 @@
 #include "csv_log.h"
 #include <stdio.h>
 
+__attribute__((section(".RAM_D2"), aligned(32)))
+static RAM_LogBuffer_t log_buffers[2];
+
+static int8_t filling_buffer = -1;
+
 static uint8_t sd_file_open = 0U;
 
 FRESULT SD_Logger_Init(void)
@@ -126,4 +131,96 @@ FRESULT SD_Logger_Close(void)
     }
 
     return result;
+}
+
+void RAM_Log_Init(void)
+{
+    memset(log_buffers, 0, sizeof(log_buffers));
+
+    log_buffers[0].state = RAM_LOG_FILLING;
+    log_buffers[1].state = RAM_LOG_FREE;
+
+    filling_buffer = 0;
+}
+
+bool RAM_Log_Append(const char *data, uint16_t length)
+{
+    if (data == NULL || length == 0U ||
+        length > RAM_LOG_BUFFER_SIZE)
+    {
+        return false;
+    }
+
+    if (filling_buffer < 0)
+    {
+        return false;
+    }
+
+    RAM_LogBuffer_t *buffer = &log_buffers[filling_buffer];
+
+    if ((uint32_t)buffer->length + length > RAM_LOG_BUFFER_SIZE)
+    {
+        buffer->state = RAM_LOG_READY;
+
+        int8_t next_buffer = -1;
+
+        for (uint8_t i = 0; i < 2U; i++)
+        {
+            if (log_buffers[i].state == RAM_LOG_FREE)
+            {
+                next_buffer = (int8_t)i;
+                break;
+            }
+        }
+
+        if (next_buffer < 0)
+        {
+            filling_buffer = -1;
+            return false;
+        }
+
+        filling_buffer = next_buffer;
+        log_buffers[filling_buffer].length = 0U;
+        log_buffers[filling_buffer].state = RAM_LOG_FILLING;
+
+        buffer = &log_buffers[filling_buffer];
+    }
+
+    memcpy(&buffer->data[buffer->length], data, length);
+    buffer->length += length;
+
+    return true;
+}
+
+RAM_LogBuffer_t *RAM_Log_GetReady(void)
+{
+    for (uint8_t i = 0; i < 2U; i++)
+    {
+        if (log_buffers[i].state == RAM_LOG_READY)
+        {
+            log_buffers[i].state = RAM_LOG_WRITING;
+            return &log_buffers[i];
+        }
+    }
+
+    return NULL;
+}
+
+void RAM_Log_Release(RAM_LogBuffer_t *buffer)
+{
+    if (buffer == NULL)
+    {
+        return;
+    }
+
+    for (uint8_t i = 0; i < 2U; i++)
+    {
+        if (buffer == &log_buffers[i] &&
+            buffer->state == RAM_LOG_WRITING)
+        {
+            buffer->length = 0U;
+            buffer->state = RAM_LOG_FREE;
+            return;
+        }
+    }
 }
