@@ -4,18 +4,24 @@
  *  Created on: 21-Nov-2026
  *      Author: sriramkumark
  */
+#include "main.h"
+
 #include "sd_log.h"
 #include "fatfs.h"
 #include "csv_log.h"
 #include <stdio.h>
 #include "string.h"
+#include "sd_diskio.h"
+#include "bsp_driver_sd.h"
+extern SD_HandleTypeDef hsd1;
 __attribute__((section(".RAM_D2"), aligned(32)))
 static RAM_LogBuffer_t log_buffers[2];
 
 static int8_t filling_buffer = -1;
 
 static uint8_t sd_file_open = 0U;
-
+volatile uint8_t sd_write_complete = 0U;
+volatile uint8_t sd_write_error = 0U;
 FRESULT SD_Logger_Init(void)
 {
     FRESULT result;
@@ -223,4 +229,61 @@ void RAM_Log_Release(RAM_LogBuffer_t *buffer)
             return;
         }
     }
+}
+
+void BSP_SD_WriteCpltCallback(void)
+{
+    sd_write_complete = 1U;
+}
+
+void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
+{
+    if (hsd == &hsd1)
+    {
+        sd_write_error = 1U;
+    }
+}
+uint8_t BSP_SD_WriteBlocks(uint32_t *pData,
+                           uint32_t WriteAddr,
+                           uint32_t NumOfBlocks,
+                           uint32_t Timeout)
+{
+    uint32_t start_tick;
+
+    sd_write_complete = 0U;
+    sd_write_error = 0U;
+
+    start_tick = HAL_GetTick();
+
+    if (HAL_SD_WriteBlocks_DMA(&hsd1,
+                               (uint8_t *)pData,
+                               WriteAddr,
+                               NumOfBlocks) != HAL_OK)
+    {
+        return MSD_ERROR;
+    }
+
+    while ((sd_write_complete == 0U) &&
+           (sd_write_error == 0U))
+    {
+        if ((HAL_GetTick() - start_tick) >= Timeout)
+        {
+            return MSD_ERROR;
+        }
+    }
+
+    if (sd_write_error != 0U)
+    {
+        return MSD_ERROR;
+    }
+
+    while (HAL_SD_GetCardState(&hsd1) != HAL_SD_CARD_TRANSFER)
+    {
+        if ((HAL_GetTick() - start_tick) >= Timeout)
+        {
+            return MSD_ERROR;
+        }
+    }
+
+    return MSD_OK;
 }

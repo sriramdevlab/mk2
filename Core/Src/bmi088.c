@@ -9,7 +9,7 @@
 #include "bmi088.h"
 #include "csv_log.h"
 #include "sd_log.h"
-
+#include "stm32h7xx_it.h"
 BMI088_DMA_Context_t *active_dma_context = NULL;
 BMI088_DMA_Context_t imu_dma_context;
 char csv_buffer[LOG_BUFFER];
@@ -803,6 +803,16 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
                 frame_length < sizeof(csv_buffer))
             {
             	RAM_Log_Append(csv_buffer, (uint16_t)frame_length);
+            	RAM_LogBuffer_t *ready = RAM_Log_GetReady();
+
+            	if(ready != NULL)
+            	{
+            		FRESULT result = SD_Logger_Write((const char *)ready->data,ready->length);
+            		if(result == FR_OK)
+            		{
+            			RAM_Log_Release(ready);
+            		}
+            	}
             }
 
             imu_dma_state = IMU_DMA_IDLE;
