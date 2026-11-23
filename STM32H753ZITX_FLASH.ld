@@ -155,6 +155,14 @@ SECTIONS
     __bss_end__ = _ebss;
   } >RAM_D1
   
+  /* SDMMC1 IDMA buffers in AXI SRAM */
+.RAM_D1 (NOLOAD) :
+{
+    . = ALIGN(32);
+    *(.RAM_D1)
+    *(.RAM_D1*)
+    . = ALIGN(32);
+} >RAM_D1
     /* DMA buffers in RAM_D2 */
   .RAM_D2 (NOLOAD) :
   {

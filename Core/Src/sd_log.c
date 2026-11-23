@@ -17,6 +17,11 @@ extern SD_HandleTypeDef hsd1;
 __attribute__((section(".RAM_D2"), aligned(32)))
 static RAM_LogBuffer_t log_buffers[2];
 
+#define SD_DMA_BUFFER_SIZE 4096U
+
+__attribute__((section(".RAM_D1"), aligned(32)))
+static uint8_t sd_dma_buffer[SD_DMA_BUFFER_SIZE];
+
 static int8_t filling_buffer = -1;
 
 static uint8_t sd_file_open = 0U;
@@ -249,40 +254,61 @@ uint8_t BSP_SD_WriteBlocks(uint32_t *pData,
                            uint32_t Timeout)
 {
     uint32_t start_tick;
+    uint32_t blocks_to_write;
+    uint32_t remaining = NumOfBlocks;
+    uint32_t sector = WriteAddr;
 
-    sd_write_complete = 0U;
-    sd_write_error = 0U;
-
-    start_tick = HAL_GetTick();
-
-    if (HAL_SD_WriteBlocks_DMA(&hsd1,
-                               (uint8_t *)pData,
-                               WriteAddr,
-                               NumOfBlocks) != HAL_OK)
+    if (pData == NULL || NumOfBlocks == 0U)
     {
         return MSD_ERROR;
     }
 
-    while ((sd_write_complete == 0U) &&
-           (sd_write_error == 0U))
+    while (remaining > 0U)
     {
-        if ((HAL_GetTick() - start_tick) >= Timeout)
+        blocks_to_write = (remaining > 8U) ? 8U : remaining;
+
+        memcpy(sd_dma_buffer,
+               (uint8_t *)pData,
+               blocks_to_write * 512U);
+
+        sd_write_complete = 0U;
+        sd_write_error = 0U;
+
+        start_tick = HAL_GetTick();
+
+        if (HAL_SD_WriteBlocks_DMA(&hsd1,
+                                   sd_dma_buffer,
+                                   sector,
+                                   blocks_to_write) != HAL_OK)
         {
             return MSD_ERROR;
         }
-    }
 
-    if (sd_write_error != 0U)
-    {
-        return MSD_ERROR;
-    }
+        while ((sd_write_complete == 0U) &&
+               (sd_write_error == 0U))
+        {
+            if ((HAL_GetTick() - start_tick) >= Timeout)
+            {
+                return MSD_ERROR;
+            }
+        }
 
-    while (HAL_SD_GetCardState(&hsd1) != HAL_SD_CARD_TRANSFER)
-    {
-        if ((HAL_GetTick() - start_tick) >= Timeout)
+        if (sd_write_error != 0U)
         {
             return MSD_ERROR;
         }
+
+        while (HAL_SD_GetCardState(&hsd1) != HAL_SD_CARD_TRANSFER)
+        {
+            if ((HAL_GetTick() - start_tick) >= Timeout)
+            {
+                return MSD_ERROR;
+            }
+        }
+
+        pData += blocks_to_write * 128U;
+        sector += blocks_to_write;
+        remaining -= blocks_to_write;
     }
 
     return MSD_OK;
